@@ -137,7 +137,7 @@ int command_line_input(int argc, char *argv[]) {
 void non_blocking_pattern(int action, int things){
 
 	// < 5 == thread, >= 5 == process
-	if (!(action < 5)) {
+	if (action < 5) {
 		// thread things
 		
 		}
@@ -157,17 +157,18 @@ void blocking_pattern(int action, int num_things){
 		// thread things
 		for(int i = 0; i < num_things; i++) {
 			void *arg = (void *) &i;
-			printf("main() : creating thread %d\n", i);
+			printf("main() : creating thread %d\n", i+1);
 			pthread_create(&threads[i], NULL, print_confirmation, arg);
+	    sleep(1);
 		}
-		
-		pthread_exit(NULL);
 	}
 	// process things
 	else {
-		printf(".");
-	}
+		for(int i = 0; i < num_things; i++) {
 			
+
+		}
+	}
 };
 
 void heap_pattern(int action, int things){
@@ -176,12 +177,15 @@ void heap_pattern(int action, int things){
 
 
 void *print_confirmation(void *threadid) {
-   long tid = (long)threadid;
-   printf("Thread created! Thread ID, %ld\n", tid);
+   //long tid = (long)threadid;
+   //printf("Thread created! Thread ID, %ld\n", (long)threadid/*tid*/);
+   printf("Thread created with blocking pattern. Waiting...\n");
    pthread_exit(NULL);
-}
+};
 
-
+//project 4
+//even: divide by 2, replace with a diff number
+//odd: multiply by 3, add 1
 
 
 
