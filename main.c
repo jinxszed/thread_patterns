@@ -18,7 +18,8 @@ Debug: implement a “-d” parameter that outputs any debug log messages you ha
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h> //sleep() -> man sleep for deets
+#include <unistd.h> 	 //sleep() -> man sleep for deets
+#include <sys/types.h> // fork()
 #include <pthread.h>
 #include <string.h>
 
@@ -32,33 +33,33 @@ void *print_confirmation(void *threadid);
 
 
 int main(int argc, char *argv[]) {
-	//pthread = thread_id
-	//pthread_create(args -> investigate
 	//pthread_join(args -> investigate
 	
 	int num_things = atoi(argv[1]),
-			pattern = atoi(argv[3]);
-
-	switch(command_line_input(argc, argv)) {
+			pattern = command_line_input(argc, argv);
+	
+	switch(pattern) {
 		case 0: 
+				printf("Improper command line input. Use flag \"-h\" as the last argument for help. Exiting program.\n");		
 			return 0;
 		case 2:
 				printf("thread, non-blocking\n");
 			break;
 		case 3:
-				printf("process, non-blocking\n");
+				printf("thread, blocking\n");
+				blocking_pattern(3, num_things);
 			break;
 		case 4:
-				printf("thread, blocking\n");
-				blocking_pattern(pattern, num_things);
-			break;
-		case 5:
-				printf("process, blocking\n");
-			break;
-		case 6:
 				printf("thread, heap\n");
 			break;
+		case 6:
+				printf("process, non-blocking\n");
+			break;
 		case 7:
+				printf("process, blocking\n");
+				blocking_pattern(7, num_things);
+			break;
+		case 8:
 				printf("process, heap\n");
 			break;
 	}
@@ -69,6 +70,20 @@ int main(int argc, char *argv[]) {
 int command_line_input(int argc, char *argv[]) {
 	int action;
 		
+		// program-ending cases
+		if(argc == 1 || argc > 4)
+			return 0;
+		else if(!strcmp(argv[argc-1], "-h"))
+			printf("This program takes in 3 command line arguments. \nFirst is a number between 1 and 256 (inclusive).\nSecond is a word, either \"thread\" or \"process\".\nThird is a number indicating the thread pattern to use. 1 is for non-blocking, 2 is for blocking, 3 is for heap.\n");
+		else if(atoi(argv[1]) < 1 || atoi(argv[1]) > 256) {
+				printf("Number should be between 1 and 256, inclusive. Exiting program.\n");
+				return 0;
+			}
+		else if(atoi(argv[3]) < 1 || atoi(argv[3]) > 3) {
+				printf("Number should be between 1 and 3, inclusive. Exiting program.\n");
+				return 0;
+			}	
+			
 		// evaluate second argument (action)
 		if(!strcmp(argv[2], "thread")) {
 			printf("thread\n");
@@ -76,7 +91,7 @@ int command_line_input(int argc, char *argv[]) {
 		}
 		else if(!strcmp(argv[2], "process")) {
 			printf("process\n");
-			action = 2;
+			action = 5;
 		}
 		
 		// evaluate third argument (pattern)
@@ -87,48 +102,24 @@ int command_line_input(int argc, char *argv[]) {
 		// action == 4 -> thread, heap
 		// action == 7 -> process, heap
 		
-		// thread
+		// threads	
 		if (atoi(argv[3]) == 1) {
 			printf("non-blocking\n");
 			action += 1; // thread, non-blocking
 		}
 		else if (atoi(argv[3]) == 2) {
 			printf("blocking\n");
-			action += 3; //thread, blocking
+			action += 2; //thread, blocking
 		}
 		else if (atoi(argv[3]) == 3) {
 			printf("heap\n");
-			action += 5; //thread, heap, returns 4
+			action += 3; //thread, heap, returns 4
 		}
 		
-		// process 
-		else if (atoi(argv[3]) == 1) {
-			printf("non-blocking\n");
-			action += 4;
-		}
-		else if (atoi(argv[3]) == 2) {
-			printf("blocking\n");
-			action += 5;
-		}
-		else if (atoi(argv[3]) == 3) {
-			printf("heap\n");
-			action += 6;
-		}
-		
-				// program-ending cases
-		if(!strcmp(argv[argc-1], "-h"))
-			printf("This program takes in 3 command line arguments. \nFirst is a number between 1 and 256 (inclusive).\nSecond is a word, either \"thread\" or \"process\".\nThird is a number indicating the thread pattern to use. 1 is for non-blocking, 2 is for blocking, 3 is for heap.\n");
-			
-		else if(atoi(argv[1]) < 1 || atoi(argv[1]) > 256) {
-				printf("Number should be between 1 and 256, inclusive. Exiting program.\n");
-				action = 0;
-			}
-		else if(atoi(argv[3]) < 1 || atoi(argv[3]) > 3) {
-				printf("Number should be between 1 and 3, inclusive. Exiting program.\n");
-				action = 0;
-			}
-		else if (action == 0)
-			printf("Improper command line input. Use flag \"-h\" as the last argument for help. Exiting program.\n");
+		/*if (action < 0) {
+			printf("Improper command line input. Use flag \"-h\" as the last argument for help. Exiting program.\n");		
+			action = 0;
+		}*/
 		
 	return action;
 }
@@ -149,12 +140,11 @@ void non_blocking_pattern(int action, int things){
 };
 
 void blocking_pattern(int action, int num_things){
-
-	pthread_t threads[num_things];
 	
-		// even = thread, odd = process
+	// thread things
 	if (action < 5) {
-		// thread things
+		pthread_t threads[num_things];
+
 		for(int i = 0; i < num_things; i++) {
 			void *arg = (void *) &i;
 			printf("main() : creating thread %d\n", i+1);
@@ -165,7 +155,8 @@ void blocking_pattern(int action, int num_things){
 	// process things
 	else {
 		for(int i = 0; i < num_things; i++) {
-			
+			fork();
+			printf("Forked sub-process.\n");
 
 		}
 	}
@@ -178,7 +169,7 @@ void heap_pattern(int action, int things){
 
 void *print_confirmation(void *threadid) {
    //long tid = (long)threadid;
-   //printf("Thread created! Thread ID, %ld\n", (long)threadid/*tid*/);
+   //printf("Thread created! Thread ID, %ld\n", tid);
    printf("Thread created with blocking pattern. Waiting...\n");
    pthread_exit(NULL);
 };
