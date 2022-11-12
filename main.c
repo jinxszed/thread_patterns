@@ -82,7 +82,7 @@ int error_checking(int argc, char *argv[]) {
 	int result = 1; // if no error, change to 0
 
 	// program-ending cases
-	if(argc <= 1 || argc > 4 || strstr("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()+=`~-_,./[]\\<>?{}|;:\'\"", argv[1]))
+	if(argc <= 1 || argc > 4 || strstr("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()+=-`~_,./[]\\<>?{}|;:\'\"", argv[1]))
 		printf("Improper command line input. Use flag \"-h\" or \"-help\" as the only argument for instructions. Exiting program.\n");
 		
 	else if(strcmp(argv[argc-1], "-h") == 0 || strcmp(argv[argc-1], "-help") == 0) // only checks first character? every character is an argument in argv[]
@@ -100,6 +100,9 @@ int error_checking(int argc, char *argv[]) {
 	
 	else if(atoi(argv[3]) < 1 || atoi(argv[3]) > 3)  // same as above
 		printf("Second number should be between 1 and 3, inclusive. Exiting program.\n");	
+		
+	else if(strcmp(argv[2], "thread") != 0 || strcmp(argv[2], "process") != 0)
+		printf("Please enter either \"thread\" or \"process\" for second argument.\n");
 		
 	else 
 		result = 0;
