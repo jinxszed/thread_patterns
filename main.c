@@ -1,3 +1,5 @@
+
+
 /*Write a program that takes three arguments: the number of “things” (between 1 and 256), a word: either “thread” or “process, and a “pattern number” (1-3 only).
 
 Create as many subprocesses or threads (“things”) as the number. Obviously, create either processes or threads as the command-line argument dictates.
@@ -8,7 +10,7 @@ Each process or thread should output (say) “Process 3 beginning”, then sleep
 
  
 
-
+//DONE
 Error checking: Check the inputs. If there is an error, emit the error and output how to invoke the program.
 
 //DONE
@@ -106,8 +108,8 @@ int error_checking(int argc, char *argv[]) {
 	else if(atoi(argv[3]) < 1 || atoi(argv[3]) > 3)  // same as above
 		printf("Second number should be between 1 and 3, inclusive. Use flag -h for more information. Exiting program.\n");	
 		
-	else if(strcmp(argv[2], "thread") != 0 || strcmp(argv[2], "process") != 0)
-		printf("Please enter either \"thread\" or \"process\" for second argument. Use flag -h for more information.\n");
+	else if(strcmp(argv[2], "thread") != 0 && strcmp(argv[2], "process") != 0)
+		printf("Please enter either \"thread\" or \"process\" for second argument. Use flag -h for more information. Exiting program.\n");
 		
 	else 
 		result = 0;
