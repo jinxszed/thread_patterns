@@ -30,6 +30,7 @@ running with -debug flag and a message logs to debug_log file, ex: ./main debug 
 #include <stdlib.h>
 #include <unistd.h> 	 //sleep() -> man sleep for deets
 #include <sys/types.h> // fork()
+#include <sys/wait.h>
 #include <pthread.h>
 #include <string.h>
 
@@ -51,7 +52,6 @@ int main(int argc, char *argv[]) {
 	if(error_checking(argc, argv))
 		return 0;
 	
-	/*
 	int num_things = atoi(argv[1]),
 			pattern = command_line_input(argc, argv);
 	
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 				printf("process, heap\n");
 			break;
 	}
-			*/
+			
 			
 			printf("no error\n");
 	return 0;
@@ -198,7 +198,7 @@ void non_blocking_pattern(int action, int things){
 void blocking_pattern(int action, int num_things){
 	
 	// thread things
-	if (action < 5) {
+	if (action == 3) {
 		pthread_t threads[num_things];
 
 		for(int i = 0; i < num_things; i++) {
@@ -211,9 +211,13 @@ void blocking_pattern(int action, int num_things){
 	// process things
 	else {
 		for(int i = 0; i < num_things; i++) {
-			fork();
-			printf("Forked sub-process.\n");
-			exit(1);
+			pid_t child_id = fork();
+			if(child_id == 0){
+  			printf("Forked sub-process number %d, ID %d.\n", i, getpid());
+        sleep(10);
+        wait(NULL);
+        //exit(1);
+      }
 		}
 	}
 };
