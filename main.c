@@ -19,6 +19,11 @@ Debug: implement a “-d” parameter that outputs any debug log messages you ha
 
 */
 
+/*
+sleazy developer notes
+running with -debug flag and a message logs to debug_log file, ex: ./main debug "my debug logs are not sleazy crap"; this is not disclosed in the instruction prompt
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h> 	 //sleep() -> man sleep for deets
@@ -96,13 +101,13 @@ int error_checking(int argc, char *argv[]) {
 		input_debug_log(&argv[2]);
 	}
 	else if(atoi(argv[1]) < 1 || atoi(argv[1]) > 256) // mistakenly compares ASCII values if any satisfactory input exists beforehand
-		printf("First number should be between 1 and 256, inclusive. Exiting program.\n");
+		printf("First number should be between 1 and 256, inclusive. Use flag -h for more information. Exiting program.\n");
 	
 	else if(atoi(argv[3]) < 1 || atoi(argv[3]) > 3)  // same as above
-		printf("Second number should be between 1 and 3, inclusive. Exiting program.\n");	
+		printf("Second number should be between 1 and 3, inclusive. Use flag -h for more information. Exiting program.\n");	
 		
 	else if(strcmp(argv[2], "thread") != 0 || strcmp(argv[2], "process") != 0)
-		printf("Please enter either \"thread\" or \"process\" for second argument.\n");
+		printf("Please enter either \"thread\" or \"process\" for second argument. Use flag -h for more information.\n");
 		
 	else 
 		result = 0;
@@ -116,8 +121,8 @@ void input_debug_log(char* argv[]){
   
   filename = fopen(db_log,"a");
   fputs(*argv, filename);
- 	fputs("\n--------END DEBUG LOG--------\n\n", filename);
-  
+  fputs("\n--------END DEBUG LOG--------\n\n", filename);
+
   fclose(filename);	
 };
 
@@ -206,7 +211,7 @@ void blocking_pattern(int action, int num_things){
 		for(int i = 0; i < num_things; i++) {
 			fork();
 			printf("Forked sub-process.\n");
-	
+			exit(1);
 		}
 	}
 };
