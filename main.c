@@ -26,7 +26,7 @@ Debug: implement a “-d” parameter that outputs any debug log messages you ha
 #include <pthread.h>
 #include <string.h>
 
-int error_checking(int argc, char *argv[]);
+int error_checking(int argc, char *argv[]); // handles errors and flags
 int command_line_input(int argc, char *argv[]); // evaluates which action and pattern to use
 void input_debug_log(char* argv[]); // <- APPENDS a file with debug log messages
 void output_debug_log(); // <- outputs file contents and exits without doing anything else
